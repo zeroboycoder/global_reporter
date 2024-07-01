@@ -1,0 +1,12 @@
+model SubCommentReply {
+  id             Int          @id @default(autoincrement())
+  commentReplyId Int
+  commentReply   CommentReply @relation(fields: [commentReplyId], references: [id])
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  content        String
+  likes          Int
+  reportedPoint  Float
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}

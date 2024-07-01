@@ -1,0 +1,20 @@
+model Notification {
+  id                   Int                 @id @default(autoincrement())
+  type                 NotificationType
+  newsId               Int?                @unique
+  news                 News?               @relation(fields: [newsId], references: [id])
+  commentId            Int?                @unique
+  comment              Comment?            @relation(fields: [commentId], references: [id])
+  systemNotificationId Int?                @unique
+  systemNotification   SystemNotification? @relation(fields: [systemNotificationId], references: [id])
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+enum NotificationType {
+  NEWS
+  COMMENT
+  COMMENT_REPLY
+  SUBCOMMENT_REPLY
+  SYSTEM
+}

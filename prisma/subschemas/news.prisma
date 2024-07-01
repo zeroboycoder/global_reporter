@@ -1,0 +1,16 @@
+model News {
+  id            Int           @id @default(autoincrement())
+  thumbnailImg  String
+  title         String
+  breakingnews  Boolean
+  content       String
+  categories    Category[]
+  views         Int
+  likes         Int
+  shears        Int
+  comments      Comment[]
+  reportedPoint Float
+  notifications Notification?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}

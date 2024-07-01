@@ -1,0 +1,9 @@
+model City {
+  id          Int           @id @default(autoincrement())
+  name        String
+  countryId   Int
+  country     Country       @relation(fields: [countryId], references: [id])
+  userSetting UserSetting[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}

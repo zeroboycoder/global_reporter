@@ -1,0 +1,11 @@
+model UserNotification {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  days        String[]
+  startTime   DateTime
+  endTime     DateTime
+  userSetting UserSetting?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

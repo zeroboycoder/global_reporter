@@ -1,0 +1,11 @@
+model User {
+  id                Int                @id @default(autoincrement())
+  name              String
+  profileUrl        String
+  userNotifications UserNotification[]
+  comments          Comment[]
+  commentReplies    CommentReply[]
+  subCommentReplies SubCommentReply[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}

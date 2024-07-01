@@ -1,0 +1,200 @@
+//🧩Don't Edit this file.✨Generated in Mon Jul 01 2024 13:19:17 GMT+0700 (Indochina Time)✨
+model About {
+  id        Int      @id @default(autoincrement())
+  context   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  news      News[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model City {
+  id          Int           @id @default(autoincrement())
+  name        String
+  countryId   Int
+  country     Country       @relation(fields: [countryId], references: [id])
+  userSetting UserSetting[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Comment {
+  id             Int            @id @default(autoincrement())
+  newsId         Int
+  news           News           @relation(fields: [newsId], references: [id])
+  userId         Int
+  user           User           @relation(fields: [userId], references: [id])
+  content        String
+  likes          Int
+  reportedPoint  Float
+  commentReplies CommentReply[]
+  notifications  Notification?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model CommentReply {
+  id                Int               @id @default(autoincrement())
+  commentId         Int
+  comment           Comment           @relation(fields: [commentId], references: [id])
+  userId            Int
+  user              User              @relation(fields: [userId], references: [id])
+  content           String
+  likes             Int
+  reportedPoint     Float
+  subCommentReplies SubCommentReply[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model Country {
+  id          Int           @id @default(autoincrement())
+  name        String
+  citys       City[]
+  userSetting UserSetting[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model News {
+  id            Int           @id @default(autoincrement())
+  thumbnailImg  String
+  title         String
+  breakingnews  Boolean
+  content       String
+  categories    Category[]
+  views         Int
+  likes         Int
+  shears        Int
+  comments      Comment[]
+  reportedPoint Float
+  notifications Notification?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Notification {
+  id                   Int                 @id @default(autoincrement())
+  type                 NotificationType
+  newsId               Int?                @unique
+  news                 News?               @relation(fields: [newsId], references: [id])
+  commentId            Int?                @unique
+  comment              Comment?            @relation(fields: [commentId], references: [id])
+  systemNotificationId Int?                @unique
+  systemNotification   SystemNotification? @relation(fields: [systemNotificationId], references: [id])
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+enum NotificationType {
+  NEWS
+  COMMENT
+  COMMENT_REPLY
+  SUBCOMMENT_REPLY
+  SYSTEM
+}
+
+model ReportComment {
+  id        Int      @id @default(autoincrement())
+  name      String
+  points    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReportNews {
+  id        Int      @id @default(autoincrement())
+  name      String
+  points    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubCommentReply {
+  id             Int          @id @default(autoincrement())
+  commentReplyId Int
+  commentReply   CommentReply @relation(fields: [commentReplyId], references: [id])
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  content        String
+  likes          Int
+  reportedPoint  Float
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model SystemNotification {
+  id            Int           @id @default(autoincrement())
+  title         String
+  content       String
+  imgUrl        String
+  notifications Notification?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Terms {
+  id        Int      @id @default(autoincrement())
+  context   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id                Int                @id @default(autoincrement())
+  name              String
+  profileUrl        String
+  userNotifications UserNotification[]
+  comments          Comment[]
+  commentReplies    CommentReply[]
+  subCommentReplies SubCommentReply[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model UserNotification {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  days        String[]
+  startTime   DateTime
+  endTime     DateTime
+  userSetting UserSetting?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model UserSetting {
+  id                     Int               @id @default(autoincrement())
+  countryId              Int
+  country                Country           @relation(fields: [countryId], references: [id])
+  cityId                 Int
+  city                   City              @relation(fields: [cityId], references: [id])
+  timeFormat             TimeFormat
+  userNotificationStatus Boolean
+  userNotificationId     Int               @unique
+  usernotification       UserNotification? @relation(fields: [userNotificationId], references: [id])
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+}
+
+enum TimeFormat {
+  T24
+  T12
+}

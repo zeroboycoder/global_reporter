@@ -1,0 +1,9 @@
+model SystemNotification {
+  id            Int           @id @default(autoincrement())
+  title         String
+  content       String
+  imgUrl        String
+  notifications Notification?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}

@@ -1,0 +1,18 @@
+model UserSetting {
+  id                     Int               @id @default(autoincrement())
+  countryId              Int
+  country                Country           @relation(fields: [countryId], references: [id])
+  cityId                 Int
+  city                   City              @relation(fields: [cityId], references: [id])
+  timeFormat             TimeFormat
+  userNotificationStatus Boolean
+  userNotificationId     Int               @unique
+  usernotification       UserNotification? @relation(fields: [userNotificationId], references: [id])
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+}
+
+enum TimeFormat {
+  T24
+  T12
+}
