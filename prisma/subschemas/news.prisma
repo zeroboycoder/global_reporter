@@ -2,14 +2,14 @@ model News {
   id            Int           @id @default(autoincrement())
   thumbnailImg  String
   title         String
-  breakingnews  Boolean
+  breakingNews  Boolean       @default(false)
   content       String
+  views         Int           @default(0)
+  likes         Int           @default(0)
+  shears        Int           @default(0)
   categories    Category[]
-  views         Int
-  likes         Int
-  shears        Int
   comments      Comment[]
-  reportedPoint Float
+  reportedPoint Float         @default(0.0)
   notifications Notification?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
