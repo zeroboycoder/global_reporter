@@ -7,6 +7,10 @@ model News {
   views         Int           @default(0)
   likes         Int           @default(0)
   shears        Int           @default(0)
+  cityId        Int
+  city          City          @relation(fields: [cityId], references: [id])
+  countryId     Int
+  country       Country       @relation(fields: [countryId], references: [id])
   categories    Category[]
   comments      Comment[]
   reportedPoint Float         @default(0.0)

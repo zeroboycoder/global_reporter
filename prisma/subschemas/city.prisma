@@ -3,6 +3,7 @@ model City {
   name        String
   countryId   Int
   country     Country       @relation(fields: [countryId], references: [id])
+  news        News[]
   userSetting UserSetting[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

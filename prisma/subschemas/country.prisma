@@ -3,6 +3,7 @@ model Country {
   imageUrl    String
   name        String
   citys       City[]
+  news        News[]
   userSetting UserSetting[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

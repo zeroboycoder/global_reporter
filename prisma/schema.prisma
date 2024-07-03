@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Tue Jul 02 2024 17:50:58 GMT+0700 (Indochina Time)✨
+//🧩Don't Edit this file.✨Generated in Wed Jul 03 2024 10:36:32 GMT+0700 (Indochina Time)✨
 model About {
   id        Int      @id @default(autoincrement())
   context   String
@@ -29,6 +29,7 @@ model City {
   name        String
   countryId   Int
   country     Country       @relation(fields: [countryId], references: [id])
+  news        News[]
   userSetting UserSetting[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -56,6 +57,7 @@ model Country {
   imageUrl    String
   name        String
   citys       City[]
+  news        News[]
   userSetting UserSetting[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -70,6 +72,10 @@ model News {
   views         Int           @default(0)
   likes         Int           @default(0)
   shears        Int           @default(0)
+  cityId        Int
+  city          City          @relation(fields: [cityId], references: [id])
+  countryId     Int
+  country       Country       @relation(fields: [countryId], references: [id])
   categories    Category[]
   comments      Comment[]
   reportedPoint Float         @default(0.0)
