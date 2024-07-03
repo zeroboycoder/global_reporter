@@ -3,6 +3,7 @@ model News {
   thumbnailImg  String
   title         String
   breakingNews  Boolean       @default(false)
+  hotNews       Boolean       @default(false)
   content       String
   views         Int           @default(0)
   likes         Int           @default(0)
