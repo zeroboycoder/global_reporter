@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Wed Jul 03 2024 10:36:32 GMT+0700 (Indochina Time)✨
+//🧩Don't Edit this file.✨Generated in Wed Jul 03 2024 17:02:18 GMT+0700 (Indochina Time)✨
 model About {
   id        Int      @id @default(autoincrement())
   context   String
@@ -17,11 +17,12 @@ generator client {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
   news      News[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  reporters Reporter[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model City {
@@ -31,6 +32,7 @@ model City {
   country     Country       @relation(fields: [countryId], references: [id])
   news        News[]
   userSetting UserSetting[]
+  reporter    Reporter[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -45,7 +47,7 @@ model Comment {
   parentCommentId Int?
   parentComment   Comment?      @relation("CommentToComment", fields: [parentCommentId], references: [id])
   replies         Comment[]     @relation("CommentToComment")
-  likes           Int           @default(0)
+  likes           Int           @default(0) // Like counts
   reportedPoint   Float         @default(0)
   notifications   Notification?
   createdAt       DateTime      @default(now())
@@ -59,8 +61,19 @@ model Country {
   citys       City[]
   news        News[]
   userSetting UserSetting[]
+  repoter     Reporter[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  newsId    Int
+  news      News     @relation(fields: [newsId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model News {
@@ -68,18 +81,23 @@ model News {
   thumbnailImg  String
   title         String
   breakingNews  Boolean       @default(false)
+  hotNews       Boolean       @default(false)
   content       String
   views         Int           @default(0)
-  likes         Int           @default(0)
+  likes         Int           @default(0) // Like count
   shears        Int           @default(0)
-  cityId        Int
-  city          City          @relation(fields: [cityId], references: [id])
-  countryId     Int
-  country       Country       @relation(fields: [countryId], references: [id])
-  categories    Category[]
+  reporterId    Int
+  reporter      Reporter      @relation(fields: [reporterId], references: [id])
+  cityId        Int?
+  city          City?         @relation(fields: [cityId], references: [id])
+  countryId     Int?
+  country       Country?      @relation(fields: [countryId], references: [id])
+  categoryId    Int
+  category      Category      @relation(fields: [categoryId], references: [id])
   comments      Comment[]
   reportedPoint Float         @default(0.0)
   notifications Notification?
+  likedUsers    Like[] // That table inlcudes newsId and userId
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -121,6 +139,18 @@ model ReportNews {
   updatedAt DateTime @updatedAt
 }
 
+model Reporter {
+  id               Int        @id @default(autoincrement())
+  name             String
+  countryId        Int?
+  country          Country?   @relation(fields: [countryId], references: [id])
+  cityId           Int?
+  city             City?      @relation(fields: [cityId], references: [id])
+  categories       Category[]
+  isGlobalReporter Boolean    @default(false)
+  news             News[]
+}
+
 model SystemNotification {
   id            Int           @id @default(autoincrement())
   title         String
@@ -144,6 +174,7 @@ model User {
   profileUrl        String
   userNotifications UserNotification[]
   comments          Comment[]
+  likes             Like[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }

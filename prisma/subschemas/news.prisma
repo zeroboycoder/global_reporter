@@ -6,16 +6,20 @@ model News {
   hotNews       Boolean       @default(false)
   content       String
   views         Int           @default(0)
-  likes         Int           @default(0)
+  likes         Int           @default(0) // Like count
   shears        Int           @default(0)
-  cityId        Int
-  city          City          @relation(fields: [cityId], references: [id])
-  countryId     Int
-  country       Country       @relation(fields: [countryId], references: [id])
-  categories    Category[]
+  reporterId    Int
+  reporter      Reporter      @relation(fields: [reporterId], references: [id])
+  cityId        Int?
+  city          City?         @relation(fields: [cityId], references: [id])
+  countryId     Int?
+  country       Country?      @relation(fields: [countryId], references: [id])
+  categoryId    Int
+  category      Category      @relation(fields: [categoryId], references: [id])
   comments      Comment[]
   reportedPoint Float         @default(0.0)
   notifications Notification?
+  likedUsers    Like[] // That table inlcudes newsId and userId
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }

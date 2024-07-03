@@ -1,0 +1,11 @@
+model Reporter {
+  id               Int        @id @default(autoincrement())
+  name             String
+  countryId        Int?
+  country          Country?   @relation(fields: [countryId], references: [id])
+  cityId           Int?
+  city             City?      @relation(fields: [cityId], references: [id])
+  categories       Category[]
+  isGlobalReporter Boolean    @default(false)
+  news             News[]
+}

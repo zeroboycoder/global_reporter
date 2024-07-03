@@ -8,7 +8,7 @@ model Comment {
   parentCommentId Int?
   parentComment   Comment?      @relation("CommentToComment", fields: [parentCommentId], references: [id])
   replies         Comment[]     @relation("CommentToComment")
-  likes           Int           @default(0)
+  likes           Int           @default(0) // Like counts
   reportedPoint   Float         @default(0)
   notifications   Notification?
   createdAt       DateTime      @default(now())

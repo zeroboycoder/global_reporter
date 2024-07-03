@@ -4,6 +4,7 @@ model User {
   profileUrl        String
   userNotifications UserNotification[]
   comments          Comment[]
+  likes             Like[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }

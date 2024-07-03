@@ -5,6 +5,7 @@ model City {
   country     Country       @relation(fields: [countryId], references: [id])
   news        News[]
   userSetting UserSetting[]
+  reporter    Reporter[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }

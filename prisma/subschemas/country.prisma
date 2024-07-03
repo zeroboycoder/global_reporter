@@ -5,6 +5,7 @@ model Country {
   citys       City[]
   news        News[]
   userSetting UserSetting[]
+  repoter     Reporter[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
