@@ -1,25 +1,27 @@
 model News {
-  id            Int           @id @default(autoincrement())
-  thumbnailImg  String
-  title         String
-  breakingNews  Boolean       @default(false)
-  hotNews       Boolean       @default(false)
-  content       String
-  views         Int           @default(0)
-  likes         Int           @default(0) // Like count
-  shears        Int           @default(0)
-  reporterId    Int
-  reporter      Reporter      @relation(fields: [reporterId], references: [id])
-  cityId        Int?
-  city          City?         @relation(fields: [cityId], references: [id])
-  countryId     Int?
-  country       Country?      @relation(fields: [countryId], references: [id])
-  categoryId    Int
-  category      Category      @relation(fields: [categoryId], references: [id])
-  comments      Comment[]
-  reportedPoint Float         @default(0.0)
-  notifications Notification?
-  likedUsers    Like[] // That table inlcudes newsId and userId
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  thumbnailImgUrl String
+  title           String
+  breakingNews    Boolean       @default(false)
+  hotNews         Boolean       @default(false)
+  content         String
+  viewCounts      Int           @default(0)
+  likeCounts      Int           @default(0) // Like count
+  shearCounts     Int           @default(0)
+  reporterId      Int
+  reporter        Reporter      @relation(fields: [reporterId], references: [id])
+  cityId          Int?
+  city            City?         @relation(fields: [cityId], references: [id])
+  countryId       Int?
+  country         Country?      @relation(fields: [countryId], references: [id])
+  categoryId      Int
+  category        Category      @relation(fields: [categoryId], references: [id])
+  comments        Comment[]
+  reportedPoint   Float         @default(0.0)
+  notifications   Notification?
+  likedNewsUsers  LikedNews[] // That table inlcudes newsId and userId
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([title, breakingNews, hotNews, viewCounts, reporterId, cityId, countryId, categoryId])
 }

@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Wed Jul 03 2024 17:02:18 GMT+0700 (Indochina Time)✨
+//🧩Don't Edit this file.✨Generated in Fri Jul 05 2024 03:33:57 GMT+0700 (Indochina Time)✨
 model About {
   id        Int      @id @default(autoincrement())
   context   String
@@ -35,23 +35,28 @@ model City {
   reporter    Reporter[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([countryId])
 }
 
 model Comment {
-  id              Int           @id @default(autoincrement())
-  newsId          Int
-  news            News          @relation(fields: [newsId], references: [id])
-  content         String
-  userId          Int
-  user            User          @relation(fields: [userId], references: [id])
-  parentCommentId Int?
-  parentComment   Comment?      @relation("CommentToComment", fields: [parentCommentId], references: [id])
-  replies         Comment[]     @relation("CommentToComment")
-  likes           Int           @default(0) // Like counts
-  reportedPoint   Float         @default(0)
-  notifications   Notification?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                Int            @id @default(autoincrement())
+  newsId            Int
+  news              News           @relation(fields: [newsId], references: [id])
+  content           String
+  userId            Int
+  user              User           @relation(fields: [userId], references: [id])
+  parentCommentId   Int?
+  parentComment     Comment?       @relation("CommentToComment", fields: [parentCommentId], references: [id])
+  replies           Comment[]      @relation("CommentToComment")
+  likeCounts        Int            @default(0) // Like counts
+  likedCommentUsers LikedComment[]
+  reportedPoint     Float          @default(0)
+  notifications     Notification?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([newsId, userId, parentCommentId])
 }
 
 model Country {
@@ -66,7 +71,19 @@ model Country {
   updatedAt   DateTime      @updatedAt
 }
 
-model Like {
+model LikedComment {
+  id        Int      @id @default(autoincrement())
+  commentId Int
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([commentId, userId])
+}
+
+model LikedNews {
   id        Int      @id @default(autoincrement())
   newsId    Int
   news      News     @relation(fields: [newsId], references: [id])
@@ -74,32 +91,36 @@ model Like {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([newsId, userId])
 }
 
 model News {
-  id            Int           @id @default(autoincrement())
-  thumbnailImg  String
-  title         String
-  breakingNews  Boolean       @default(false)
-  hotNews       Boolean       @default(false)
-  content       String
-  views         Int           @default(0)
-  likes         Int           @default(0) // Like count
-  shears        Int           @default(0)
-  reporterId    Int
-  reporter      Reporter      @relation(fields: [reporterId], references: [id])
-  cityId        Int?
-  city          City?         @relation(fields: [cityId], references: [id])
-  countryId     Int?
-  country       Country?      @relation(fields: [countryId], references: [id])
-  categoryId    Int
-  category      Category      @relation(fields: [categoryId], references: [id])
-  comments      Comment[]
-  reportedPoint Float         @default(0.0)
-  notifications Notification?
-  likedUsers    Like[] // That table inlcudes newsId and userId
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  thumbnailImgUrl String
+  title           String
+  breakingNews    Boolean       @default(false)
+  hotNews         Boolean       @default(false)
+  content         String
+  viewCounts      Int           @default(0)
+  likeCounts      Int           @default(0) // Like count
+  shearCounts     Int           @default(0)
+  reporterId      Int
+  reporter        Reporter      @relation(fields: [reporterId], references: [id])
+  cityId          Int?
+  city            City?         @relation(fields: [cityId], references: [id])
+  countryId       Int?
+  country         Country?      @relation(fields: [countryId], references: [id])
+  categoryId      Int
+  category        Category      @relation(fields: [categoryId], references: [id])
+  comments        Comment[]
+  reportedPoint   Float         @default(0.0)
+  notifications   Notification?
+  likedNewsUsers  LikedNews[] // That table inlcudes newsId and userId
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([title, breakingNews, hotNews, viewCounts, reporterId, cityId, countryId, categoryId])
 }
 
 model Notification {
@@ -113,6 +134,8 @@ model Notification {
   systemNotification   SystemNotification? @relation(fields: [systemNotificationId], references: [id])
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
+
+  @@index([newsId, commentId, systemNotificationId])
 }
 
 enum NotificationType {
@@ -149,16 +172,19 @@ model Reporter {
   categories       Category[]
   isGlobalReporter Boolean    @default(false)
   news             News[]
+
+  @@index([countryId, cityId])
 }
 
 model SystemNotification {
-  id            Int           @id @default(autoincrement())
-  title         String
-  content       String
-  imgUrl        String
-  notifications Notification?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  title           String
+  content         String
+  thumbnailImgUrl String
+  imgUrl          String
+  notifications   Notification?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model Terms {
@@ -174,7 +200,8 @@ model User {
   profileUrl        String
   userNotifications UserNotification[]
   comments          Comment[]
-  likes             Like[]
+  likedNews         LikedNews[]
+  likedComments     LikedComment[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }
@@ -189,6 +216,8 @@ model UserNotification {
   userSetting UserSetting?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
 }
 
 model UserSetting {
@@ -203,6 +232,8 @@ model UserSetting {
   usernotification       UserNotification? @relation(fields: [userNotificationId], references: [id])
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
+
+  @@index([countryId, cityId, userNotificationId])
 }
 
 enum TimeFormat {

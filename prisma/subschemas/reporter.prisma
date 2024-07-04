@@ -8,4 +8,6 @@ model Reporter {
   categories       Category[]
   isGlobalReporter Boolean    @default(false)
   news             News[]
+
+  @@index([countryId, cityId])
 }

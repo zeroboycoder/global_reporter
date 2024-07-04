@@ -10,6 +10,8 @@ model UserSetting {
   usernotification       UserNotification? @relation(fields: [userNotificationId], references: [id])
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
+
+  @@index([countryId, cityId, userNotificationId])
 }
 
 enum TimeFormat {

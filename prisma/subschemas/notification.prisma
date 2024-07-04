@@ -9,6 +9,8 @@ model Notification {
   systemNotification   SystemNotification? @relation(fields: [systemNotificationId], references: [id])
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
+
+  @@index([newsId, commentId, systemNotificationId])
 }
 
 enum NotificationType {
