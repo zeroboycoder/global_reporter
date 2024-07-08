@@ -5,6 +5,7 @@ model News {
   breakingNews    Boolean       @default(false)
   hotNews         Boolean       @default(false)
   content         String
+  status          String
   viewCounts      Int           @default(0)
   likeCounts      Int           @default(0) // Like count
   shearCounts     Int           @default(0)
