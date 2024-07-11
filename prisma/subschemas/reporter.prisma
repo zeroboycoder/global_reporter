@@ -10,6 +10,8 @@ model Reporter {
   categoryIds      Category[]
   isGlobalReporter Boolean    @default(false)
   news             News[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@index([countryId, cityId])
 }

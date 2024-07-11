@@ -2,45 +2,40 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
 
-exports.createCity = async (req, res) => {
+exports.createReport = async (req, res) => {
   try {
-    const { name, countryId } = req.body;
-    const city = await prisma.city.create({
+    const { type, name, point } = req.body;
+    let model;
+    if (type === "news") {
+      model = ReportNews;
+    } else if (type === "comment") {
+      model = ReportComment;
+    }
+    const result = await prisma.model.create({
       data: {
         name,
-        countryId: parseInt(countryId),
-
-        // country: {
-        //   connect: {
-        //     id: parseInt(countryId),
-        //   },
-        // },
+        point,
       },
     });
-    return response.success(res, "City created successfully", city);
+    return response.success(res, `${model} created successfully`, result);
   } catch (error) {
-    return response.error(res, "Error creating city", error.message);
+    return response.error(res, `Error creating ${model}`, error.message);
   }
 };
 
 exports.fetchCity = async (req, res) => {
   try {
-    const { countryId } = req.query;
-    const city = await prisma.city.findMany({
-      where: {
-        countryId: parseInt(countryId),
-      },
-      include: {
-        country: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-    return response.success(res, "City fetched successfully", city);
+    const { type } = req.query;
+    let model;
+    if (type === "news") {
+      model = ReportNews;
+    } else if (type === "comment") {
+      model = ReportComment;
+    }
+    const result = await prisma.model.findMany({});
+    return response.success(res, `${model} fetched successfully`, result);
   } catch (error) {
-    return response.error(res, "Error fetching city", error.message);
+    return response.error(res, `Error fetching ${model}`, error.message);
   }
 };
 
@@ -48,6 +43,13 @@ exports.updateCity = async (req, res) => {
   try {
     const { cityId } = req.params;
     const { name } = req.body;
+
+    let model;
+    if (type === "news") {
+      model = ReportNews;
+    } else if (type === "comment") {
+      model = ReportComment;
+    }
 
     const city = await prisma.city.update({
       where: {

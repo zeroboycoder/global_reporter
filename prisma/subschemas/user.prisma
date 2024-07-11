@@ -2,6 +2,7 @@ model User {
   id                Int                @id @default(autoincrement())
   name              String
   profileUrl        String
+  country           String
   userNotifications UserNotification[]
   comments          Comment[]
   likedNews         LikedNews[]

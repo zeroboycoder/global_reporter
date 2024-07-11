@@ -1,9 +1,21 @@
-//🧩Don't Edit this file.✨Generated in Wed Jul 10 2024 14:30:15 GMT+0700 (Indochina Time)✨
+//🧩Don't Edit this file.✨Generated in Fri Jul 12 2024 05:22:00 GMT+0700 (Indochina Time)✨
 model About {
   id        Int      @id @default(autoincrement())
   context   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id          Int      @id @default(autoincrement())
+  adminId     String
+  password    String
+  name        String
+  ipAddresses String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([adminId, name])
 }
 
 datasource db {
@@ -150,7 +162,7 @@ enum NotificationType {
 model ReportComment {
   id        Int      @id @default(autoincrement())
   name      String
-  points    Int
+  point     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -158,7 +170,7 @@ model ReportComment {
 model ReportNews {
   id        Int      @id @default(autoincrement())
   name      String
-  points    Int
+  point     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -175,6 +187,8 @@ model Reporter {
   categoryIds      Category[]
   isGlobalReporter Boolean    @default(false)
   news             News[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@index([countryId, cityId])
 }
@@ -201,6 +215,7 @@ model User {
   id                Int                @id @default(autoincrement())
   name              String
   profileUrl        String
+  country           String
   userNotifications UserNotification[]
   comments          Comment[]
   likedNews         LikedNews[]

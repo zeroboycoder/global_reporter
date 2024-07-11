@@ -49,7 +49,7 @@ exports.createReporter = async (req, res) => {
 
 exports.fetchReporter = async (req, res) => {
   try {
-    const { reporterId, name } = req.body;
+    const { reporterId, name } = req.query;
 
     const reporter = await prisma.reporter.findFirst({
       where: {

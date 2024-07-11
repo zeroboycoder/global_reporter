@@ -1,7 +1,7 @@
 model ReportNews {
   id        Int      @id @default(autoincrement())
   name      String
-  points    Int
+  point     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
