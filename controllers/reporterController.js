@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const bcrypt = require("bcrypt");
 const response = require("../util/response");
 
 exports.createReporter = async (req, res) => {
@@ -23,15 +24,19 @@ exports.createReporter = async (req, res) => {
       });
       isAlreadyReportedId ? generateReporterId() : null;
     };
+    generateReporterId();
 
-    // Step 2. Create the reporter
+    // Step 2. Generate the password
+    let hashedPassword = await bcrypt.hash(password, 10);
+
+    // Step 3. Create the reporter
     const reporter = await prisma.reporter.create({
       data: {
         reporterId,
-        password,
+        password: hashedPassword,
         name,
-        countryId,
-        cityId,
+        countryId: parseInt(countryId),
+        cityId: parseInt(countryId),
         categoryIds,
         isGlobalReporter,
       },
@@ -60,5 +65,52 @@ exports.fetchReporter = async (req, res) => {
 };
 
 exports.updateReporterByAdmin = async (req, res) => {
-  const {} = req.bbody;
+  try {
+    const { name, categoryIds, countryId, cityId, isGlobalReporter } = req.body;
+    const { reporterId } = req.params;
+
+    const reporter = await prisma.reporter.update({
+      where: {
+        reporterId,
+      },
+      data: {
+        name,
+        categoryIds,
+        countryId,
+        cityId,
+        isGlobalReporter,
+      },
+    });
+    return response.success(res, "Reporter updated successfully", reporter);
+  } catch (error) {
+    return response.error(error, "Reporter updating failed", error.message);
+  }
+};
+
+exports.updateReporterPasswordByAdmin = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const { reporterId } = req.params;
+    let hashedPassword = await bcrypt.hash(password, 10);
+
+    const reporter = await prisma.reporter.update({
+      where: {
+        reporterId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    return response.success(
+      res,
+      "Reporter password updated successfully",
+      reporter
+    );
+  } catch (error) {
+    return response.error(
+      error,
+      "Reporter updating password failed",
+      error.message
+    );
+  }
 };

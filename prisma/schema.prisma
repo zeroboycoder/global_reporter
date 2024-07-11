@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Mon Jul 08 2024 20:49:38 GMT+0700 (Indochina Time)✨
+//🧩Don't Edit this file.✨Generated in Wed Jul 10 2024 14:30:15 GMT+0700 (Indochina Time)✨
 model About {
   id        Int      @id @default(autoincrement())
   context   String
@@ -29,7 +29,7 @@ model City {
   id          Int           @id @default(autoincrement())
   name        String
   countryId   Int
-  country     Country       @relation(fields: [countryId], references: [id])
+  country     Country       @relation(fields: [countryId], references: [id], onDelete: Cascade)
   news        News[]
   userSetting UserSetting[]
   reporter    Reporter[]

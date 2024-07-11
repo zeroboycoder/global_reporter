@@ -2,7 +2,7 @@ model City {
   id          Int           @id @default(autoincrement())
   name        String
   countryId   Int
-  country     Country       @relation(fields: [countryId], references: [id])
+  country     Country       @relation(fields: [countryId], references: [id], onDelete: Cascade)
   news        News[]
   userSetting UserSetting[]
   reporter    Reporter[]

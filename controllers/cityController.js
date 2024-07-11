@@ -8,11 +8,13 @@ exports.createCity = async (req, res) => {
     const city = await prisma.city.create({
       data: {
         name,
-        country: {
-          connect: {
-            id: countryId,
-          },
-        },
+        countryId: parseInt(countryId),
+
+        // country: {
+        //   connect: {
+        //     id: parseInt(countryId),
+        //   },
+        // },
       },
     });
     return response.success(res, "City created successfully", city);
@@ -27,6 +29,13 @@ exports.fetchCity = async (req, res) => {
     const city = await prisma.city.findMany({
       where: {
         countryId: parseInt(countryId),
+      },
+      include: {
+        country: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
     return response.success(res, "City fetched successfully", city);
