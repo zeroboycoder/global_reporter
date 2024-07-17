@@ -73,6 +73,6 @@ exports.loginAdmin = async (req, res) => {
 
     return response.success(res, "Admin logged in successfully", admin);
   } catch (error) {
-    return response.error(res, error.message);
+    return response.error(res, "Error logging in admin", error.message);
   }
 };

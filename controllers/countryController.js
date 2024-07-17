@@ -4,16 +4,16 @@ const response = require("../util/response");
 
 exports.createCountry = async (req, res) => {
   try {
-    const { name, imageUrl } = req.body;
+    const { name } = req.body;
     const country = await prisma.country.create({
       data: {
         name,
-        imageUrl,
+        photoUrl: "www.google.com",
       },
     });
     return response.success(res, "Country created successfully", country);
   } catch (error) {
-    return response.error(res, "Error creating country", error.message);
+    return response.error(res, error.message);
   }
 };
 
@@ -29,7 +29,7 @@ exports.fetchCountry = async (req, res) => {
 exports.updateCountry = async (req, res) => {
   try {
     const { countryId } = req.params;
-    const { name, imageUrl } = req.body;
+    const { name, photoUrl } = req.body;
 
     const country = await prisma.country.update({
       where: {
@@ -37,7 +37,7 @@ exports.updateCountry = async (req, res) => {
       },
       data: {
         name,
-        imageUrl,
+        photoUrl,
       },
     });
 
