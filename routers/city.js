@@ -1,5 +1,5 @@
 const route = require("express").Router();
-const cityController = require("../../controllers/cityController");
+const cityController = require("../controllers/cityController");
 
 route.get("/", cityController.fetchCity);
 

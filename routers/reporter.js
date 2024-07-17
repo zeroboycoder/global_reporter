@@ -1,5 +1,5 @@
 const route = require("express").Router();
-const reporterController = require("../../controllers/reporterController");
+const reporterController = require("../controllers/reporterController");
 
 route.get("/", reporterController.fetchReporter);
 

@@ -1,13 +1,22 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const countryDatas = require("../seeds/country");
+const { countryDatas, cityDatas, categoryDatas } = require("../seeds");
 
 const main = async () => {
-  // Create Country
-  const countries = await prisma.country.createMany({
+  // Create Countries
+  await prisma.country.createMany({
     data: countryDatas,
   });
-  console.log(countries);
+
+  // Create Cities
+  await prisma.city.createMany({
+    data: cityDatas,
+  });
+
+  // Create Categories
+  await prisma.category.createMany({
+    data: categoryDatas,
+  });
 };
 
 main()

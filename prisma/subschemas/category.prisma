@@ -1,8 +1,0 @@
-model Category {
-  id        Int        @id @default(autoincrement())
-  name      String
-  news      News[]
-  reporters Reporter[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}

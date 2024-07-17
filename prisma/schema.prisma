@@ -1,260 +1,452 @@
-//🧩Don't Edit this file.✨Generated in Fri Jul 12 2024 05:22:00 GMT+0700 (Indochina Time)✨
-model About {
-  id        Int      @id @default(autoincrement())
-  context   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-model Admin {
-  id          Int      @id @default(autoincrement())
-  adminId     String
-  password    String
-  name        String
-  ipAddresses String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-  @@index([adminId, name])
+generator client {
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["prismaSchemaFolder"]
-}
+model Admin {
+    id       String  @id @default(cuid())
+    loginId  String  @unique @map("login_id")
+    photoUrl String  @map("photo_url") @db.VarChar(200)
+    fullName String  @map("full_name") @db.VarChar(100)
+    password String
+    // permissions Json?
+    isActive Boolean @default(true) @map("is_active")
 
-model Category {
-  id        Int        @id @default(autoincrement())
-  name      String
-  news      News[]
-  reporters Reporter[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
 
-model City {
-  id          Int           @id @default(autoincrement())
-  name        String
-  countryId   Int
-  country     Country       @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  news        News[]
-  userSetting UserSetting[]
-  reporter    Reporter[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+    // Relationships
+    loginAccessTokens LoginAccessToken[]
 
-  @@index([countryId])
-}
-
-model Comment {
-  id                Int            @id @default(autoincrement())
-  newsId            Int
-  news              News           @relation(fields: [newsId], references: [id])
-  content           String
-  userId            Int
-  user              User           @relation(fields: [userId], references: [id])
-  parentCommentId   Int?
-  parentComment     Comment?       @relation("CommentToComment", fields: [parentCommentId], references: [id])
-  replies           Comment[]      @relation("CommentToComment")
-  likeCounts        Int            @default(0) // Like counts
-  likedCommentUsers LikedComment[]
-  reportedPoint     Float          @default(0)
-  notifications     Notification?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-
-  @@index([newsId, userId, parentCommentId])
-}
-
-model Country {
-  id          Int           @id @default(autoincrement())
-  imageUrl    String
-  name        String
-  citys       City[]
-  news        News[]
-  userSetting UserSetting[]
-  repoter     Reporter[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-model LikedComment {
-  id        Int      @id @default(autoincrement())
-  commentId Int
-  comment   Comment  @relation(fields: [commentId], references: [id])
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([commentId, userId])
-}
-
-model LikedNews {
-  id        Int      @id @default(autoincrement())
-  newsId    Int
-  news      News     @relation(fields: [newsId], references: [id])
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([newsId, userId])
-}
-
-model News {
-  id              Int           @id @default(autoincrement())
-  thumbnailImgUrl String
-  title           String
-  breakingNews    Boolean       @default(false)
-  hotNews         Boolean       @default(false)
-  content         String
-  status          String
-  viewCounts      Int           @default(0)
-  likeCounts      Int           @default(0) // Like count
-  shearCounts     Int           @default(0)
-  reporterId      Int
-  reporter        Reporter      @relation(fields: [reporterId], references: [id])
-  cityId          Int?
-  city            City?         @relation(fields: [cityId], references: [id])
-  countryId       Int?
-  country         Country?      @relation(fields: [countryId], references: [id])
-  categoryId      Int
-  category        Category      @relation(fields: [categoryId], references: [id])
-  comments        Comment[]
-  reportedPoint   Float         @default(0.0)
-  notifications   Notification?
-  likedNewsUsers  LikedNews[] // That table inlcudes newsId and userId
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@index([title, breakingNews, hotNews, viewCounts, reporterId, cityId, countryId, categoryId])
-}
-
-model Notification {
-  id                   Int                 @id @default(autoincrement())
-  type                 NotificationType
-  newsId               Int?                @unique
-  news                 News?               @relation(fields: [newsId], references: [id])
-  commentId            Int?                @unique
-  comment              Comment?            @relation(fields: [commentId], references: [id])
-  systemNotificationId Int?                @unique
-  systemNotification   SystemNotification? @relation(fields: [systemNotificationId], references: [id])
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-
-  @@index([newsId, commentId, systemNotificationId])
-}
-
-enum NotificationType {
-  NEWS
-  COMMENT
-  COMMENT_REPLY
-  SUBCOMMENT_REPLY
-  SYSTEM
-}
-
-model ReportComment {
-  id        Int      @id @default(autoincrement())
-  name      String
-  point     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ReportNews {
-  id        Int      @id @default(autoincrement())
-  name      String
-  point     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    // Indexes
+    // @@index([created_at(sort: Desc)])
+    @@index([loginId], name: "EmailIndex")
+    @@map("admins")
 }
 
 model Reporter {
-  id               Int        @id @default(autoincrement())
-  reporterId       String
-  password         String
-  name             String
-  countryId        Int?
-  country          Country?   @relation(fields: [countryId], references: [id])
-  cityId           Int?
-  city             City?      @relation(fields: [cityId], references: [id])
-  categoryIds      Category[]
-  isGlobalReporter Boolean    @default(false)
-  news             News[]
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+    id            String   @id @default(cuid())
+    loginId       String   @unique @map("login_id")
+    photoUrl      String?  @map("photo_url") @db.VarChar(200)
+    fullName      String   @map("full_name") @db.VarChar(100)
+    password      String
+    reporter_info Json? // post_count , report_count
+    country       Country? @relation(fields: [countryId], references: [id])
+    countryId     Int?
 
-  @@index([countryId, cityId])
+    isGlobal Boolean @default(false) @map("is_global")
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    // Define many-to-many relationship with Category
+    // categories Category[] @relation("ReporterCategories")
+
+    loginAccessTokens  LoginAccessToken[]
+    blogs              Blog[]
+    notifications      Notification[]
+    saveBlogs          SaveBlog[]
+    reporterCategories ReporterCategories[]
+
+    @@index([loginId], name: "EmailIndex")
+    @@map("reporters")
 }
 
-model SystemNotification {
-  id              Int           @id @default(autoincrement())
-  title           String
-  content         String
-  thumbnailImgUrl String
-  imgUrl          String
-  notifications   Notification?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-}
+model ReporterCategories {
+    reporterId String @map("reporter_id")
+    categoryId Int    @map("category_id")
 
-model Terms {
-  id        Int      @id @default(autoincrement())
-  context   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    reporter Reporter @relation(fields: [reporterId], references: [id])
+    category Category @relation(fields: [categoryId], references: [id])
+
+    @@id([reporterId, categoryId])
+    @@map("reporter_categories") // optional: map to a custom table name
 }
 
 model User {
-  id                Int                @id @default(autoincrement())
-  name              String
-  profileUrl        String
-  country           String
-  userNotifications UserNotification[]
-  comments          Comment[]
-  likedNews         LikedNews[]
-  likedComments     LikedComment[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+    id       String  @id @default(cuid())
+    deviceId String  @unique @map("device_id")
+    photoUrl String  @map("photo_url") @db.VarChar(200)
+    fullName String  @map("full_name") @db.VarChar(100)
+    // userInfo Json?   @map("user_info")
+    isActive Boolean @default(true) @map("is_active")
+
+    country   Country? @relation(fields: [countryId], references: [id])
+    countryId Int?
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    loginAccessTokens LoginAccessToken[]
+    comments          Comment[]
+    likes             Like[]
+    userDevices       UserDevice[]
+    notifications     Notification[]
+    reportLists       ReportList[]
+    saveBlogs         SaveBlog[]
+
+    @@index([deviceId])
+    @@index([fullName])
+    @@map("users")
 }
 
-model UserNotification {
-  id          Int          @id @default(autoincrement())
-  userId      Int
-  user        User         @relation(fields: [userId], references: [id])
-  days        String[]
-  startTime   DateTime
-  endTime     DateTime
-  userSetting UserSetting?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+model UserDevice {
+    id          Int     @id @default(autoincrement())
+    User        User    @relation(fields: [userId], references: [id])
+    userId      String
+    notiToken   String  @map("noti_token")
+    settingInfo Json?   @map("setting_info")
+    isActive    Boolean @default(true) @map("is_active")
 
-  @@index([userId])
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("user_devices")
 }
 
-model UserSetting {
-  id                     Int               @id @default(autoincrement())
-  countryId              Int
-  country                Country           @relation(fields: [countryId], references: [id])
-  cityId                 Int
-  city                   City              @relation(fields: [cityId], references: [id])
-  timeFormat             TimeFormat
-  userNotificationStatus Boolean
-  userNotificationId     Int               @unique
-  usernotification       UserNotification? @relation(fields: [userNotificationId], references: [id])
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
+model LoginAccessToken {
+    id Int @id @default(autoincrement())
 
-  @@index([countryId, cityId, userNotificationId])
+    adminId   String? @map("admin_id")
+    repoterId String? @map("repoter_id")
+    userId    String? @map("user_id")
+
+    loginInfo Json?  @map("login_info")
+    tokenKey  String @map("token_key")
+
+    // refresh_token String?  @db.Text
+    // expired_date  DateTime
+
+    admin    Admin?    @relation(fields: [adminId], references: [id], map: "admin_id_provider")
+    reporter Reporter? @relation(fields: [repoterId], references: [id])
+    user     User?     @relation(fields: [userId], references: [id])
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@index([tokenKey])
+    @@map("login_access_token")
 }
 
-enum TimeFormat {
-  T24
-  T12
+enum VersionType {
+    ANDROID
+    IOS
 }
+
+model Version {
+    id          Int         @id @default(autoincrement())
+    version     String      @unique @map("version")
+    url         String      @unique @map("url")
+    type        VersionType
+    updatedDate DateTime    @updatedAt @map("updated_date")
+    info        Json?       @map("info")
+
+    skippable Boolean @default(true) @map("skippable")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("versions")
+}
+
+model Country {
+    id       Int     @id @default(autoincrement())
+    name     String  @unique
+    photoUrl String? @map("photo_url")
+    // order    Int
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    regions   Region[]
+    blogs     Blog[]
+    reporters Reporter[]
+    users     User[]
+
+    @@index([name])
+    // @@index([order(sort: Asc)])
+    @@map("countries")
+}
+
+model Region {
+    id        Int     @id @default(autoincrement())
+    // name      String  @unique
+    name      String
+    countryId Int     @map("country_id")
+    isActive  Boolean @default(false) @map("is_active")
+    // order     Int
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    country Country @relation(fields: [countryId], references: [id])
+    blogs   Blog[]
+
+    // @@index([country_id])
+    // @@index([order(sort: Asc)])
+    @@unique([countryId, name])
+    @@index([name])
+    @@map("regions")
+}
+
+model Category {
+    id        Int     @id @default(autoincrement())
+    name      String  @unique
+    photoUrl  String? @map("photo_url")
+    isActive  Boolean @default(true) @map("is_active")
+    viewCount Int     @default(0) @map("view_count")
+    order     Int
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    blogs Blog[]
+
+    // Define many-to-many relationship with Reporter
+    // reporters          Reporter[]           @relation("ReporterCategories")
+    reporterCategories ReporterCategories[]
+
+    @@index([name])
+    @@map("categories")
+}
+
+// New
+model Blog {
+    id           String  @id @default(cuid())
+    repoterId    String
+    categoryId   Int
+    isGlobal     Boolean @default(false) @map("is_global")
+    isBreaking   Boolean @default(false) @map("is_Breaking")
+    countryId    Int?    @map("country_id")
+    regionId     Int?    @map("region_id")
+    title        String
+    content      String  @db.LongText // mysql
+    coverPhoto   String? @map("cover_photo")
+    viewCount    Int     @default(0) @map("view_count")
+    likeCount    Int     @default(0) @map("like_count")
+    commentCount Int     @default(0) @map("comment_count")
+    shareCount   Int     @default(0) @map("share_count")
+    reportCount  Int     @default(0) @map("report_count")
+    info         Json?   @map("info") // Reason
+
+    // isActive Boolean @default(true) @map("is_active")
+    status Int @default(0) @map("is_active") // 0 -> draft , 1-> published , 2-> reporter del ,  3-> report (ban) , 4 -> admin del 
+
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime? @updatedAt @map("updated_at")
+    reportDate DateTime? @map("report_date")
+
+    reporter Reporter @relation(fields: [repoterId], references: [id])
+    category Category @relation(fields: [categoryId], references: [id])
+    country  Country? @relation(fields: [countryId], references: [id])
+    region   Region?  @relation(fields: [regionId], references: [id])
+
+    // category    Category[]
+    comments     Comment[]
+    likes        Like[]
+    reportLists  ReportList[]
+    saveBlogs    SaveBlog[]
+    Notification Notification[]
+
+    @@index([title])
+    @@index([status])
+    @@index([createdAt(sort: Desc)])
+    @@map("blogs")
+}
+
+model SaveBlog {
+    id Int @id @default(autoincrement())
+
+    blog   Blog   @relation(fields: [blogId], references: [id])
+    blogId String @map("blog_id")
+
+    users  User?   @relation(fields: [userId], references: [id])
+    userId String? @map("user_id")
+
+    reporter  Reporter? @relation(fields: [repoterId], references: [id])
+    repoterId String?
+
+    createdAt DateTime @default(now()) @map("created_at")
+    // updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("save_blogs")
+}
+
+model Comment {
+    id      Int    @id @default(autoincrement())
+    content String
+
+    reportCount  Int @default(0) @map("report_count")
+    likeCount    Int @default(0) @map("like_count")
+    commentCount Int @default(0) @map("comment_count")
+
+    blogId String @map("blog_id")
+    userId String @map("user_id")
+
+    blog Blog @relation(fields: [blogId], references: [id])
+    user User @relation(fields: [userId], references: [id])
+
+    repliesId      Int?      @map("replies_id")
+    replies        Comment[] @relation("replies")
+    repliesComment Comment?  @relation("replies", fields: [repliesId], references: [id])
+
+    likes       Like[]
+    reportLists ReportList[]
+
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt    DateTime       @default(now()) @map("created_at")
+    updatedAt    DateTime?      @updatedAt @map("updated_at")
+    reportDate   DateTime?      @map("report_date")
+    Notification Notification[]
+
+    @@map("comments")
+}
+
+model Like {
+    id Int @id @default(autoincrement())
+
+    comment   Comment? @relation(fields: [commentId], references: [id])
+    commentId Int?     @map("comment_id")
+
+    blog   Blog?   @relation(fields: [blogId], references: [id])
+    blogId String? @map("blog_id")
+
+    users  User   @relation(fields: [userId], references: [id])
+    userId String @map("user_id")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("likes")
+}
+
+enum NotificationType {
+    HOT_NEW // REPOTER id 
+    COMMENT // user
+    SYSTEM // *
+    USER
+    REPOTER
+}
+
+model Notification {
+    id         Int              @id @default(autoincrement())
+    type       NotificationType
+    coverPhoto String?          @map("cover_photo")
+    title      String
+    content    String?          @db.LongText // mysql
+    userId     String?          @map("user_id")
+    repoterId  String?          @map("repoter_id")
+
+    blog   Blog?   @relation(fields: [blogId], references: [id])
+    blogId String? @map("blog_id")
+
+    comment   Comment? @relation(fields: [commentId], references: [id])
+    commentId Int?     @map("commentId")
+
+    isRead Boolean @default(false) @map("is_read")
+
+    reporter Reporter? @relation(fields: [repoterId], references: [id])
+    user     User?     @relation(fields: [userId], references: [id])
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("notifications")
+}
+
+model Setting {
+    //  term and conditions & Policy and Privacy (reporter,user) | maintaince (repoter,user) | quick select (noti time) user | Content to admin (reporter)
+    id Int @id @default(autoincrement())
+
+    name     String  @unique
+    payload  Json
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("setting")
+}
+
+model ProfileImage {
+    id       Int     @id @default(autoincrement())
+    order    Int
+    photoUrl String  @map("photo_url") @db.VarChar(200)
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@index([order(sort: Desc)])
+    @@map("profile_image")
+}
+
+enum ReportType {
+    COMMENT
+    POST
+}
+
+model Report {
+    id       Int        @id @default(autoincrement())
+    name     Json
+    point    Int
+    type     ReportType
+    isActive Boolean    @default(true) @map("is_active")
+
+    reportLists ReportList[]
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("reports")
+}
+
+model ReportList {
+    id Int @id @default(autoincrement())
+
+    reports  Report? @relation(fields: [reportId], references: [id])
+    reportId Int?    @map("report_id")
+
+    comment   Comment? @relation(fields: [commentId], references: [id])
+    commentId Int?     @map("comment_id")
+
+    blog   Blog?   @relation(fields: [blogId], references: [id])
+    blogId String? @map("blog_id")
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    // remark   String?
+    isActive Boolean @default(true) @map("is_active")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+
+    @@map("report_lists")
+}
+
+// user  -> ReportList | Notification | Like | Comment
+
+// {
+//     "notiTime": [
+//         {
+//             "status": true,
+//             "startTime": "",
+//             "EndTime": "",
+//             "day": []
+//         }
+//     ]
+// }
