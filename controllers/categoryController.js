@@ -4,10 +4,12 @@ const response = require("../util/response");
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
-    const category = await prisma.c.create({
+    const { name, order } = req.body;
+    const category = await prisma.category.create({
       data: {
         name,
+        photoUrl: "www.google.com",
+        order: parseInt(order),
       },
     });
     return response.success(res, "Category created successfully", category);
