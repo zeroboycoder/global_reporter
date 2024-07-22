@@ -1,17 +1,50 @@
+require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
+const telegram = require("../util/telegram");
+const { TELEGRAM_CHANNEL_ID } = process.env;
 
 exports.createSettings = async (req, res) => {
   const { name, payload } = req.body;
   try {
-    const result = await prisma.setting.create({
-      data: {
+    // Check if setting already exists
+    const isSettingAlreadyExists = await prisma.setting.findUnique({
+      where: {
         name,
-        payload,
       },
     });
-    return response.success(res, `${name} created successfully`, result);
+    if (isSettingAlreadyExists) {
+      // Update the payload
+      await prisma.setting.update({
+        where: {
+          name,
+        },
+        data: {
+          payload,
+        },
+      });
+    } else {
+      // Else setting does not exist
+      await prisma.setting.create({
+        data: {
+          name,
+          payload,
+        },
+      });
+    }
+
+    if (name === "system-maintenance") {
+      let text = "";
+      if (payload?.status === true) {
+        text = "Maintenance mode enabled";
+      } else {
+        text = "Maintenance mode disabled";
+      }
+      await telegram.send(TELEGRAM_CHANNEL_ID, text);
+    }
+
+    return response.success(res, `${name} updated successfully`);
   } catch (error) {
     console.log(error);
     return response.error(res, `Error creating ${name}`, error.message);
