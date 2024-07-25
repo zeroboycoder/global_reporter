@@ -1,13 +1,35 @@
 require("dotenv").config();
 const axios = require("axios");
-const { TELEGRAM_TOKEN } = process.env;
+const {
+  TELEGRAM_TOKEN,
+  TELEGRAM_GROUP_ID,
+  TELEGRAM_NOTIFICATION_ID,
+  TELEGRAM_CRONJOB_ID,
+  TELEGRAM_ERROR_ID,
+} = process.env;
 const { GENERAL_ERROR_CHANNEL_ID } = process.env;
 
 module.exports = {
-  async send(channelId, text) {
-    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${channelId}&&text=${text}&disable_web_page_preview=true`;
+  async send(type, text) {
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+    let topicId = "";
+
+    if (type === "appNoti") {
+      topicId = TELEGRAM_NOTIFICATION_ID;
+    } else if (type === "cronjob") {
+      topicId = TELEGRAM_CRONJOB_ID;
+    } else if (type === "error") {
+      topicId = TELEGRAM_ERROR_ID;
+    }
+
+    const payload = {
+      message_thread_id: topicId,
+      chat_id: TELEGRAM_GROUP_ID,
+      text,
+    };
+
     try {
-      const response = await axios.get(url, { timeout: 10000 });
+      const response = await axios.post(url, payload);
       return response;
     } catch (error) {
       // If timeout error occurs, retry the request after a delay

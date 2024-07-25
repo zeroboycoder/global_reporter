@@ -6,10 +6,10 @@ exports.success = (res, msg, data) => {
   });
 };
 
-exports.error = (res, msg, data) => {
+exports.error = (res, message, data) => {
   return res.status(400).json({
-    status: "error",
-    msg,
+    statusCode: "error",
+    message,
     data,
   });
 };

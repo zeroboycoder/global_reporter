@@ -3,7 +3,6 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
 const telegram = require("../util/telegram");
-const { TELEGRAM_CHANNEL_ID } = process.env;
 
 exports.createSettings = async (req, res) => {
   const { name, payload } = req.body;
@@ -41,7 +40,7 @@ exports.createSettings = async (req, res) => {
       } else {
         text = "Maintenance mode disabled";
       }
-      await telegram.send(TELEGRAM_CHANNEL_ID, text);
+      await telegram.send("appNoti", text);
     }
 
     return response.success(res, `${name} updated successfully`);
