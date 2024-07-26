@@ -9,6 +9,7 @@ const countryRoutes = require("./country");
 const settingRoutes = require("./setting");
 const versionRoutes = require("./version");
 const reporterRoutes = require("./reporter");
+const userRoutes = require("./user");
 
 route.use("/auth", authRoute);
 route.use("/admins", verifyToken, adminRoute);
@@ -18,6 +19,7 @@ route.use("/countries", verifyToken, countryRoutes);
 route.use("/settings", verifyToken, settingRoutes);
 route.use("/versions", verifyToken, versionRoutes);
 route.use("/reporters", verifyToken, reporterRoutes);
+route.use("/users", verifyToken, userRoutes);
 
 route.use("/health-check", (req, res) =>
   res.json({
