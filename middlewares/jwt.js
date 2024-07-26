@@ -2,9 +2,9 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const signedToken = (data) => jwt.sign(data, SECRET_KEY);
+exports.signedToken = (data) => jwt.sign(data, SECRET_KEY);
 
-const verifyToken = (req, res, next) => {
+exports.verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {

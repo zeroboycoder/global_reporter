@@ -3,6 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const response = require("../util/response");
+const { signedToken } = require("../middlewares/jwt");
 const { ADMIN_IP } = process.env;
 
 exports.createAdmin = async (req, res) => {
@@ -38,8 +39,15 @@ exports.createAdmin = async (req, res) => {
       },
     });
 
+    // Generate the admin jwt token
+    const token = signedToken({
+      id: admin.id,
+    });
+
     delete admin.password;
-    return response.success(res, "Admin created successfully", admin);
+    return response.success(res, "Admin created successfully", {
+      token,
+    });
   } catch (error) {
     return response.error(res, "Error creating admin", error.message);
   }
@@ -69,9 +77,15 @@ exports.loginAdmin = async (req, res) => {
       return response.error(res, "Password is incorrect");
     }
 
-    delete admin.password;
+    // Generate the admin jwt token
+    const token = signedToken({
+      id: admin.id,
+    });
 
-    return response.success(res, "Admin logged in successfully", admin);
+    delete admin.password;
+    return response.success(res, "Admin logged in successfully", {
+      token,
+    });
   } catch (error) {
     return response.error(res, "Error logging in admin", error.message);
   }

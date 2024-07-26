@@ -5,7 +5,8 @@ const response = require("../util/response");
 const telegram = require("../util/telegram");
 
 exports.createSettings = async (req, res) => {
-  const { name, payload } = req.body;
+  const { payload } = req.body;
+  const { name } = req.query;
   try {
     // Check if setting already exists
     const isSettingAlreadyExists = await prisma.setting.findUnique({
