@@ -46,6 +46,7 @@ exports.createAdmin = async (req, res) => {
 
     delete admin.password;
     return response.success(res, "Admin created successfully", {
+      admin,
       token,
     });
   } catch (error) {

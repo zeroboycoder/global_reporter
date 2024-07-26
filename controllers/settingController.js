@@ -5,7 +5,7 @@ const response = require("../util/response");
 const telegram = require("../util/telegram");
 
 exports.createSettings = async (req, res) => {
-  const { payload } = req.body;
+  const { payload, isActive } = req.body;
   const { name } = req.query;
   try {
     // Check if setting already exists
@@ -22,6 +22,7 @@ exports.createSettings = async (req, res) => {
         },
         data: {
           payload,
+          isActive,
         },
       });
     } else {
@@ -30,13 +31,14 @@ exports.createSettings = async (req, res) => {
         data: {
           name,
           payload,
+          isActive,
         },
       });
     }
 
     if (name === "system-maintenance") {
       let text = "";
-      if (payload?.status === true) {
+      if (isActive === true) {
         text = "Maintenance mode enabled";
       } else {
         text = "Maintenance mode disabled";

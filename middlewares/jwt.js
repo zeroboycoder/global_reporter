@@ -19,5 +19,6 @@ exports.verifyToken = (req, res, next) => {
   /*
    * Do something with the decoded token
    */
+  console.log(decoded);
   return next();
 };

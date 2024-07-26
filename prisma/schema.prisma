@@ -110,7 +110,7 @@ enum DeviceType {
 model UserDevice {
     id          Int        @id @default(autoincrement())
     User        User       @relation(fields: [userId], references: [id])
-    userId      String
+    userId      String     @map("user_id")
     type        DeviceType
     notiToken   String     @map("noti_token")
     settingInfo Json?      @map("setting_info")
@@ -126,7 +126,7 @@ model LoginAccessToken {
     id Int @id @default(autoincrement())
 
     adminId    String? @map("admin_id")
-    reporterId String? @map("repoter_id")
+    reporterId String? @map("reporter_id")
     userId     String? @map("user_id")
 
     loginInfo Json?  @map("login_info")
@@ -252,7 +252,7 @@ model Blog {
     // isActive Boolean @default(true) @map("is_active")
     status Int @default(0) @map("status") // 0 -> draft , 1-> published , 2-> reporter del ,  3-> report (ban) , 4 -> admin del 
 
-    publishDate DateTime  @map("publish_date")
+    publishDate DateTime? @map("publish_date")
     createdAt   DateTime  @default(now()) @map("created_at")
     updatedAt   DateTime? @updatedAt @map("updated_at")
     reportDate  DateTime? @map("report_date")
@@ -271,7 +271,7 @@ model Blog {
 
     @@index([title])
     @@index([status])
-    @@index([createdAt(sort: Desc)])
+    @@index([publishDate(sort: Desc)])
     @@map("blogs")
 }
 
@@ -284,8 +284,8 @@ model SaveBlog {
     users  User?   @relation(fields: [userId], references: [id])
     userId String? @map("user_id")
 
-    reporter  Reporter? @relation(fields: [repoterId], references: [id])
-    repoterId String?
+    reporter   Reporter? @relation(fields: [reporterId], references: [id])
+    reporterId String?
 
     createdAt DateTime @default(now()) @map("created_at")
     // updatedAt DateTime? @updatedAt @map("updated_at")
@@ -333,22 +333,25 @@ model Like {
     blog   Blog?   @relation(fields: [blogId], references: [id])
     blogId String? @map("blog_id")
 
-    users  User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id])
     userId String @map("user_id")
 
     createdAt DateTime @default(now()) @map("created_at")
 
-    @@unique([userId, blogId])
-    @@unique([userId, commentId])
+    // @@unique([userId, blogId])
+    // @@unique([userId, commentId])
     @@map("likes")
 }
 
 enum NotificationType {
-    HOT_NEW // REPOTER id 
-    COMMENT // user
+    HOT_NEW // REPORTER id  | hot new 
+    COMMENT // user (remove) | new comment
+    COMMENT_REPLY // user | reply to a comment
+    LIKE // user (remove)
     SYSTEM // *
     USER
-    REPOTER
+    REPORTER
+    CUSTOM
 }
 
 model Notification {
@@ -358,17 +361,16 @@ model Notification {
     title      String
     content    String?          @db.LongText // mysql
     userId     String?          @map("user_id")
-    repoterId  String?          @map("repoter_id")
-
-    blog   Blog?   @relation(fields: [blogId], references: [id])
-    blogId String? @map("blog_id")
+    reporterId String?          @map("reporter_id")
+    blog       Blog?            @relation(fields: [blogId], references: [id])
+    blogId     String?          @map("blog_id")
 
     comment   Comment? @relation(fields: [commentId], references: [id])
     commentId Int?     @map("commentId")
 
     isRead Boolean @default(false) @map("is_read")
 
-    reporter Reporter? @relation(fields: [repoterId], references: [id])
+    reporter Reporter? @relation(fields: [reporterId], references: [id])
     user     User?     @relation(fields: [userId], references: [id])
 
     createdAt DateTime  @default(now()) @map("created_at")
@@ -378,7 +380,7 @@ model Notification {
 }
 
 model Setting {
-    //  term and conditions & Policy and Privacy (reporter,user) | maintaince (repoter,user) | quick select (noti time) user | Content to admin (reporter)
+    //  term and conditions & Policy and Privacy (reporter,user) | maintaince (reporter,user) | quick select (noti time) user | Content to admin (reporter)
     id Int @id @default(autoincrement())
 
     name     String  @unique

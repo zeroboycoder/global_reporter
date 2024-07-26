@@ -8,7 +8,7 @@ exports.createReporter = async (req, res) => {
     const { fullName, password, categoryIds, countryId, isGlobal } = req.body;
 
     // Step 1. Generate the reporter loginId
-    let loginId;
+    let loginId = "";
     const generateReporterLoginId = async () => {
       const alphabets = "abcdefghijklmnopqrstuvwxyz";
       for (let i = 0; i < 4; i++) {
@@ -26,7 +26,7 @@ exports.createReporter = async (req, res) => {
     generateReporterLoginId();
 
     // Step 2. Generate the password
-    let hashedPassword = await bcrypt.hash(password, 10);
+    let hashedPassword = await bcrypt.hash(password.toString(), 10);
 
     // Step 3. Create the reporter
     const reporter = await prisma.reporter.create({
@@ -52,18 +52,30 @@ exports.createReporter = async (req, res) => {
 
     return response.success(res, "Reporter created successfully");
   } catch (error) {
+    console.log(error);
     return response.error(res, "Error creating reporter", error.message);
   }
 };
 
-exports.fetchReporter = async (req, res) => {
+exports.fetchReporters = async (req, res) => {
   try {
     const { loginId, name } = req.body;
+
+    const reporters = await prisma.reporter.findMany({});
+
+    return response.success(res, "Reporters fetched successfully", reporter);
+  } catch (error) {
+    return response.error(error, "Reporters fetched failed", error.message);
+  }
+};
+
+exports.fetchReporterDetail = async (req, res) => {
+  try {
+    const { loginId } = req.params;
 
     const reporter = await prisma.reporter.findFirst({
       where: {
         loginId,
-        name,
       },
     });
 

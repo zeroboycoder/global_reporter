@@ -8,7 +8,7 @@ exports.success = (res, msg, data) => {
 
 exports.error = (res, message, data) => {
   return res.status(400).json({
-    statusCode: "error",
+    statusCode: 400,
     message,
     data,
   });
