@@ -9,12 +9,14 @@ exports.fetchData = async (
   showPerPage,
   sort,
   where,
-  include
+  include,
+  select
 ) => {
   try {
     const data = await prisma[model].findMany({
       where,
       include,
+      select,
       skip: (parseInt(page) - 1) * parseInt(showPerPage),
       take: parseInt(showPerPage),
       orderBy: {

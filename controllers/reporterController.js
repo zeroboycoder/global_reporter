@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const response = require("../util/response");
+const { fetchData } = require("../util/apiQuery");
 
 exports.createReporter = async (req, res) => {
   try {
@@ -41,14 +42,16 @@ exports.createReporter = async (req, res) => {
     });
 
     // Create the reporter categories
-    categoryIds.map(async (categoryId) => {
-      await prisma.reporterCategories.create({
-        data: {
-          reporterId: reporter.id,
-          categoryId,
-        },
-      });
-    });
+    Promise.all(
+      categoryIds.map(async (categoryId) => {
+        await prisma.reporterCategories.create({
+          data: {
+            reporterId: reporter.id,
+            categoryId,
+          },
+        });
+      })
+    );
 
     return response.success(res, "Reporter created successfully");
   } catch (error) {
@@ -59,77 +62,123 @@ exports.createReporter = async (req, res) => {
 
 exports.fetchReporters = async (req, res) => {
   try {
-    const { loginId, name } = req.body;
+    const { page = 1, showPerPage = 10, sort = "desc", name, id } = req.query;
 
-    const reporters = await prisma.reporter.findMany({});
+    // Config for filter
+    const where = {};
+    name ? (where.fullName = { contains: name }) : null;
+    id ? (where.id = parseInt(id)) : null;
 
-    return response.success(res, "Reporters fetched successfully", reporter);
+    const select = {
+      id: true,
+      fullName: true,
+      country: {
+        select: {
+          name: true,
+        },
+      },
+      reporter_info: true,
+      isActive: true,
+    };
+
+    const reporters = await fetchData(
+      res,
+      "reporter",
+      page,
+      showPerPage,
+      sort,
+      where,
+      null,
+      select
+    );
+
+    return response.success(res, "Reporters fetched successfully", reporters);
   } catch (error) {
-    return response.error(error, "Reporters fetched failed", error.message);
+    return response.error(res, "Reporters fetched failed", error.message);
   }
 };
 
 exports.fetchReporterDetail = async (req, res) => {
   try {
-    const { loginId } = req.params;
+    const { id } = req.params;
 
-    const reporter = await prisma.reporter.findFirst({
+    const reporter = await prisma.reporter.findUnique({
       where: {
-        loginId,
+        id,
+      },
+      select: {
+        id: true,
+        loginId: true,
+        fullName: true,
+        createdAt: true,
       },
     });
 
-    return response.success(res, "Reporter fetched successfully", reporter);
+    return response.success(
+      res,
+      "Fetched reporter detail successfully",
+      reporter
+    );
   } catch (error) {
-    return response.error(error, "Reporter fetched failed", error.message);
+    return response.error(res, "Reporter detial fetched failed", error.message);
   }
 };
 
 exports.updateReporterByAdmin = async (req, res) => {
   try {
-    const { name, categoryIds, countryId, cityId, isGlobalReporter } = req.body;
-    const { loginId } = req.params;
+    const { fullName, categoryIds, countryId, isGlobal } = req.body;
+    const { id } = req.params;
 
     const reporter = await prisma.reporter.update({
       where: {
-        loginId,
+        id,
       },
       data: {
-        name,
-        categoryIds,
+        fullName,
         countryId,
-        cityId,
-        isGlobalReporter,
+        isGlobal,
       },
     });
+
+    if (categoryIds?.length > 0) {
+      // Create the reporter categories
+      Promise.all(
+        categoryIds.map(async (categoryId) => {
+          await prisma.reporterCategories.create({
+            data: {
+              reporterId: id,
+              categoryId,
+            },
+          });
+        })
+      );
+    }
+
+    delete reporter.password;
     return response.success(res, "Reporter updated successfully", reporter);
   } catch (error) {
-    return response.error(error, "Reporter updating failed", error.message);
+    return response.error(res, "Reporter updating failed", error.message);
   }
 };
 
 exports.updateReporterPasswordByAdmin = async (req, res) => {
   try {
     const { password } = req.body;
-    const { loginId } = req.params;
+    const { id } = req.params;
     let hashedPassword = await bcrypt.hash(password, 10);
 
-    const reporter = await prisma.reporter.update({
+    await prisma.reporter.update({
       where: {
-        loginId,
+        id,
       },
       data: {
         password: hashedPassword,
       },
     });
-    return response.success(
-      res,
-      "Reporter password updated successfully",
-      reporter
-    );
+    return response.success(res, "Reporter password updated successfully", {});
   } catch (error) {
     return response.error(
-      error,
+      res,
       "Reporter updating password failed",
       error.message
     );

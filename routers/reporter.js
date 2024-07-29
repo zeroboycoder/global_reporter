@@ -3,14 +3,14 @@ const reporterController = require("../controllers/reporterController");
 
 route.get("/", reporterController.fetchReporters);
 
-route.get("/:reporterId", reporterController.fetchReporterDetail);
+route.get("/:id", reporterController.fetchReporterDetail);
 
 route.post("/", reporterController.createReporter);
 
-route.put("/:reporterId", reporterController.updateReporterByAdmin);
+route.put("/:id", reporterController.updateReporterByAdmin);
 
 route.put(
-  "/:reporterId/change-password",
+  "/:id/update-password",
   reporterController.updateReporterPasswordByAdmin
 );
 
