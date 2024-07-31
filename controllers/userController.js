@@ -5,11 +5,17 @@ const { fetchData } = require("../util/apiQuery");
 
 exports.fetchUsers = async (req, res) => {
   try {
-    const { page = 1, showPerPage = 10, sort = "desc", name, id } = req.query;
+    const {
+      page = 1,
+      showPerPage = 10,
+      sort = "desc",
+      name = undefined,
+      id = undefined,
+    } = req.query;
 
     // Config for filter
     const where = {};
-    name ? (where.fullName = { contains: name }) : null;
+    name ? (where.fullName = { startsWith: name }) : null;
     id ? (where.id = parseInt(id)) : null;
 
     const include = {

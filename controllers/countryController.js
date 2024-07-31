@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
+const { fetchData } = require("../util/apiQuery");
 
 exports.createCountry = async (req, res) => {
   try {
@@ -13,14 +14,29 @@ exports.createCountry = async (req, res) => {
     });
     return response.success(res, "Country created successfully", country);
   } catch (error) {
-    return response.error(res, error.message);
+    return response.error(res, "Error creating country", error.message);
   }
 };
 
 exports.fetchCountry = async (req, res) => {
   try {
-    const country = await prisma.country.findMany();
-    return response.success(res, "Country fetched successfully", country);
+    const { page = 1, showPerPage = 10, sort = "desc", name } = req.query;
+
+    const where = {
+      name: {
+        startsWith: name,
+      },
+    };
+
+    const countries = await fetchData(
+      res,
+      "country",
+      page,
+      showPerPage,
+      sort,
+      where
+    );
+    return response.success(res, "Country fetched successfully", countries);
   } catch (error) {
     return response.error(res, "Error fetching country", error.message);
   }
@@ -29,7 +45,7 @@ exports.fetchCountry = async (req, res) => {
 exports.updateCountry = async (req, res) => {
   try {
     const { countryId } = req.params;
-    const { name, photoUrl } = req.body;
+    const { name, photoUrl, isActive } = req.body;
 
     const country = await prisma.country.update({
       where: {
@@ -38,6 +54,7 @@ exports.updateCountry = async (req, res) => {
       data: {
         name,
         photoUrl,
+        isActive,
       },
     });
 

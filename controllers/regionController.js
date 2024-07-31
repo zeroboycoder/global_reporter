@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
+const { fetchData } = require("../util/apiQuery");
 
 exports.createRegion = async (req, res) => {
   try {
@@ -20,21 +21,44 @@ exports.createRegion = async (req, res) => {
 
 exports.fetchRegion = async (req, res) => {
   try {
-    const { countryId } = req.query;
-    console.log(countryId);
-    const region = await prisma.region.findMany({
-      where: {
-        countryId: parseInt(countryId),
+    const {
+      page = 1,
+      showPerPage = 10,
+      sort = "desc",
+      name = undefined,
+      countryId,
+    } = req.query;
+
+    if (!countryId) {
+      return response.error(res, "Country id is required");
+    }
+
+    const where = {
+      name: {
+        startsWith: name,
       },
-      include: {
-        country: {
-          select: {
-            name: true,
-          },
+      countryId: parseInt(countryId),
+    };
+
+    const include = {
+      country: {
+        select: {
+          name: true,
         },
       },
-    });
-    return response.success(res, "Region fetched successfully", region);
+    };
+
+    const regions = await fetchData(
+      res,
+      "region",
+      page,
+      showPerPage,
+      sort,
+      where,
+      include
+    );
+
+    return response.success(res, "Region fetched successfully", regions);
   } catch (error) {
     return response.error(res, "Error fetching region", error.message);
   }
@@ -43,7 +67,7 @@ exports.fetchRegion = async (req, res) => {
 exports.updateRegion = async (req, res) => {
   try {
     const { regionId } = req.params;
-    const { name } = req.body;
+    const { name, isActive } = req.body;
 
     const region = await prisma.region.update({
       where: {
@@ -51,6 +75,7 @@ exports.updateRegion = async (req, res) => {
       },
       data: {
         name,
+        isActive,
       },
     });
 

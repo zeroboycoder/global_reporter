@@ -1,14 +1,15 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const response = require("../util/response");
+const { fetchData } = require("../util/apiQuery");
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name, order } = req.body;
+    const { name, photoUrl, order } = req.body;
     const category = await prisma.category.create({
       data: {
         name,
-        photoUrl: "www.google.com",
+        photoUrl,
         order: parseInt(order),
       },
     });
@@ -20,17 +21,33 @@ exports.createCategory = async (req, res) => {
 
 exports.fetchCategory = async (req, res) => {
   try {
-    const category = await prisma.category.findMany();
-    return response.success(res, "Category fetched successfully", category);
+    const { page = 1, showPerPage = 10, sort = "desc", name } = req.query;
+
+    const where = {
+      name: {
+        startsWith: name,
+      },
+    };
+
+    const categories = await fetchData(
+      res,
+      "category",
+      page,
+      showPerPage,
+      sort,
+      where
+    );
+
+    return response.success(res, "Categories fetched successfully", categories);
   } catch (error) {
-    return response.error(res, "Error fetching category", error.message);
+    return response.error(res, "Error fetching categories", error.message);
   }
 };
 
 exports.updateCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const { name } = req.body;
+    const { name, isActive } = req.body;
 
     const category = await prisma.category.update({
       where: {
@@ -38,6 +55,7 @@ exports.updateCategory = async (req, res) => {
       },
       data: {
         name,
+        isActive,
       },
     });
 
